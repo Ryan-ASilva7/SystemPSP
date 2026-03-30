@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SST System - Gestão de Segurança do Trabalho</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: #0f172a;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .app-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: #f1f5f9;
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
+            min-height: 85vh;
+        }
+
+        .header {
+            background: white;
+            padding: 16px 28px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            background: linear-gradient(135deg, #1e293b, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .user-badge {
+            background: #eef2ff;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .dev-badge {
+            background: #a855f7;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+
+        .logout-btn, .switch-profile-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .switch-profile-btn {
+            background: #64748b;
+        }
+
+        .nav-menu {
+            background: white;
+            padding: 10px 24px;
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            color: #334155;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .nav-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .content {
+            padding: 28px;
+            min-height: 550px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            cursor: pointer;
+        }
+
+        .stat-card .value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .card .value {
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 8px;
+        }
+
+        .card h3 {
+            font-size: 14px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .table th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        .role-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .role-admin { background: #3b82f6; color: white; }
+        .role-colaborador { background: #10b981; color: white; }
+        .role-dev { background: #a855f7; color: white; }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-ativo { background: #dcfce7; color: #166534; }
+        .status-inativo { background: #fee2e2; color: #991b1b; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 32px;
+            max-width: 500px;
+            width: 90%;
+            padding: 28px;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #3b82f6;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 14px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 640px) {
+            .content { padding: 16px; }
+            .table th, .table td { padding: 8px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="app"></div>
+
+<script>
+    // ========== DADOS GLOBAIS ==========
+    let currentUser = null;
+    let users = [];
+    let empresas = [];
+    let logs = [];
+    let setores = [];
+    let colaboradores = [];
+    let documentos = [];
+    let solicitacoesPET = [];
+    let feedbacks = [];
+    
+    let telaAtual = "inicial";
+    let screenApp = "dashboard";
+    let setorSelecionadoId = null;
+
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    function loadData() {
+        users = JSON.parse(localStorage.getItem('sst_users') || '[]');
+        empresas = JSON.parse(localStorage.getItem('sst_empresas') || '[]');
+        logs = JSON.parse(localStorage.getItem('sst_logs') || '[]');
+        setores = JSON.parse(localStorage.getItem('sst_setores') || '[]');
+        colaboradores = JSON.parse(localStorage.getItem('sst_colaboradores') || '[]');
+        documentos = JSON.parse(localStorage.getItem('sst_documentos') || '[]');
+        solicitacoesPET = JSON.parse(localStorage.getItem('sst_solicitacoesPET') || '[]');
+        feedbacks = JSON.parse(localStorage.getItem('sst_feedbacks') || '[]');
+    }
+
+    function saveAll() {
+        localStorage.setItem('sst_users', JSON.stringify(users));
+        localStorage.setItem('sst_empresas', JSON.stringify(empresas));
+        localStorage.setItem('sst_logs', JSON.stringify(logs));
+        localStorage.setItem('sst_setores', JSON.stringify(setores));
+        localStorage.setItem('sst_colaboradores', JSON.stringify(colaboradores));
+        localStorage.setItem('sst_documentos', JSON.stringify(documentos));
+        localStorage.setItem('sst_solicitacoesPET', JSON.stringify(solicitacoesPET));
+        localStorage.setItem('sst_feedbacks', JSON.stringify(feedbacks));
+        window.dispatchEvent(new Event('storage'));
+    }
+
+    window.addEventListener('storage', function(e) {
+        if (e.key && e.key.startsWith('sst_')) {
+            loadData();
+            if (telaAtual === 'app' && currentUser) {
+                renderizarApp();
+                showToast('📢 Dados atualizados em tempo real!');
+            }
+        }
+    });
+
+    function initData() {
+        if (!localStorage.getItem('sst_users')) {
+            users = [
+                { id: 1, nome: "Admin Sistema", cpf: "000.000.000-00", email: "admin@sst.com", perfil: "admin", senha: "admin123", status: "ativo", dataCadastro: new Date().toLocaleString() },
+                { id: 2, nome: "João Silva", cpf: "111.222.333-44", email: "joao@empresa.com", perfil: "colaborador", senha: "joao123", status: "ativo", dataCadastro: new Date().toLocaleString() },
+                { id: 999, nome: "Dev Master", cpf: "999.999.999-99", email: "dev@sistema.com", perfil: "dev", senha: "dev123", status: "ativo", dataCadastro: new Date().toLocaleString() }
+            ];
+            localStorage.setItem('sst_users', JSON.stringify(users));
+        }
+        
+        if (!localStorage.getItem('sst_empresas')) {
+            empresas = [
+                { id: 1, nome: "Sistema SST", cnpj: "00.000.000/0001-00", email: "contato@sistema.com", telefone: "(11) 99999-9999", status: "ativo", dataCadastro: new Date().toLocaleString() }
+            ];
+            localStorage.setItem('sst_empresas', JSON.stringify(empresas));
+        }
+        
+        if (!localStorage.getItem('sst_setores')) {
+            setores = [
+                { id: 1, nome: "Setor A", status: "Ligado", controlado: 85 },
+                { id: 2, nome: "Manutenção", status: "Ligado", controlado: 70 }
+            ];
+            localStorage.setItem('sst_setores', JSON.stringify(setores));
+        }
+        
+        if (!localStorage.getItem('sst_colaboradores')) {
+            colaboradores = [
+                { id: 1, nome: "Everto Júnior", idade: 33, cargo: "Serralheiro", setorId: 2 },
+                { id: 2, nome: "Paulo Algusto", idade: 41, cargo: "Serralheiro", setorId: 1 }
+            ];
+            localStorage.setItem('sst_colaboradores', JSON.stringify(colaboradores));
+        }
+        
+        if (!localStorage.getItem('sst_documentos')) {
+            documentos = [
+                { id: 1, tipo: "POP", titulo: "POP - Serralheiro", cargoVinculado: "Serralheiro", setorId: 1, conteudo: "Procedimento padrão para serralheiros", anexo: null }
+            ];
+            localStorage.setItem('sst_documentos', JSON.stringify(documentos));
+        }
+        
+        if (!localStorage.getItem('sst_solicitacoesPET')) {
+            solicitacoesPET = [];
+            localStorage.setItem('sst_solicitacoesPET', JSON.stringify(solicitacoesPET));
+        }
+        
+        if (!localStorage.getItem('sst_feedbacks')) {
+            feedbacks = [];
+            localStorage.setItem('sst_feedbacks', JSON.stringify(feedbacks));
+        }
+        
+        if (!localStorage.getItem('sst_logs')) {
+            logs = [];
+            localStorage.setItem('sst_logs', JSON.stringify(logs));
+        }
+        
+        loadData();
+    }
+
+    // ========== AUTENTICAÇÃO ==========
+    function renderizarApp() {
+        const container = document.getElementById('app');
+        if(telaAtual === "inicial") { container.innerHTML = renderPaginaInicial(); return; }
+        if(telaAtual === "login") { container.innerHTML = renderLogin(); return; }
+        if(telaAtual === "cadastro") { container.innerHTML = renderCadastro(); return; }
+        if(telaAtual === "app" && currentUser) {
+            let conteudo = '';
+            if(currentUser.perfil === 'dev') {
+                if(screenApp === 'devDashboard') conteudo = renderDevDashboard();
+                else if(screenApp === 'devEmpresas') conteudo = renderDevEmpresas();
+                else if(screenApp === 'devUsuarios') conteudo = renderDevUsuarios();
+                else if(screenApp === 'devLogs') conteudo = renderDevLogs();
+                else conteudo = renderDevDashboard();
+                container.innerHTML = renderHeaderApp() + renderDevNav() + `<div class="content">${conteudo}</div>`;
+            } else {
+                if(screenApp === 'dashboard') conteudo = renderDashboard();
+                else if(screenApp === 'setores') conteudo = renderSetores();
+                else if(screenApp === 'colaboradores') conteudo = renderColaboradores();
+                else if(screenApp === 'documentos') conteudo = renderDocumentos();
+                else if(screenApp === 'solicitacoes') conteudo = renderSolicitacoes();
+                else if(screenApp === 'solicitarPETForm') conteudo = renderFormSolicitarPET();
+                else if(screenApp === 'riscos') conteudo = renderRiscos();
+                else conteudo = renderDashboard();
+                container.innerHTML = renderHeaderApp() + renderNavApp() + `<div class="content">${conteudo}</div>`;
+            }
+        }
+    }
+
+    function renderPaginaInicial() {
+        return `<div style="min-height: 70vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px;">
+            <h1 style="font-size: 48px; color: white; margin-bottom: 32px;">System</h1>
+            <button class="btn-primary" style="background: #3b82f6; padding: 14px 42px; font-size: 18px;" onclick="acessarSistema()">Acessar Sistema</button>
+        </div>`;
+    }
+
+    window.acessarSistema = function() { telaAtual = "login"; renderizarApp(); };
+
+    function renderLogin() {
+        return `<div style="padding: 40px 24px; max-width: 450px; margin: 0 auto;">
+            <h2>Login de acesso</h2>
+            <p style="margin-bottom: 28px;">Tenha um dia produtivo :)</p>
+            <div class="form-group"><label>CPF</label><input id="loginCpf" placeholder="000.000.000-00"></div>
+            <div class="form-group"><label>Senha</label><input id="loginSenha" type="password"></div>
+            <button class="btn-primary" onclick="fazerLogin()" style="width: 100%;">Entrar</button>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn-secondary" onclick="mostrarCadastro()">Registrar</button>
+            </div>
+            <button class="switch-profile-btn" style="margin-top: 16px;" onclick="voltarTelaInicial()">◀ Voltar</button>
+        </div>`;
+    }
+
+    window.fazerLogin = function() {
+        const cpf = document.getElementById('loginCpf').value;
+        const senha = document.getElementById('loginSenha').value;
+        loadData();
+        const user = users.find(u => u.cpf === cpf && u.senha === senha && u.status !== 'inativo');
+        if(user) { 
+            currentUser = user; 
+            telaAtual = "app"; 
+            screenApp = "dashboard";
+            logs.unshift({ id: Date.now(), usuario: user.nome, acao: "Login realizado", data: new Date().toLocaleString() });
+            if(logs.length > 100) logs = logs.slice(0, 100);
+            saveAll();
+            renderizarApp(); 
+        } else alert("CPF ou senha incorretos ou usuário inativo");
+    };
+
+    window.mostrarCadastro = function() { telaAtual = "cadastro"; renderizarApp(); };
+    window.voltarTelaInicial = function() { telaAtual = "inicial"; renderizarApp(); };
+    window.logout = function() { 
+        logs.unshift({ id: Date.now(), usuario: currentUser?.nome, acao: "Logout", data: new Date().toLocaleString() });
+        saveAll();
+        currentUser = null; 
+        telaAtual = "inicial"; 
+        renderizarApp(); 
+    };
+    window.voltarSelecaoPerfil = function() { telaAtual = "login"; renderizarApp(); };
+    window.mudarTela = function(tela, setorId = null) { 
+        if(setorId) setorSelecionadoId = setorId;
+        screenApp = tela; 
+        renderizarApp(); 
+    };
+
+    function renderCadastro() {
+        return `<div style="padding: 30px 20px; max-width: 500px; margin: 0 auto;">
+            <h2>Cadastro</h2>
+            <div class="form-group"><label>Nome</label><input id="cadNome"></div>
+            <div class="form-group"><label>CPF</label><input id="cadCpf"></div>
+            <div class="form-group"><label>Email</label><input id="cadEmail"></div>
+            <div class="form-group"><label>Senha</label><input id="cadSenha" type="password"></div>
+            <button class="btn-primary" onclick="registrarUsuario()">Registrar</button>
+            <button class="btn-secondary" onclick="voltarLogin()">Voltar</button>
+        </div>`;
+    }
+
+    window.registrarUsuario = function() {
+        const novo = { 
+            id: users.length+1, 
+            nome: document.getElementById('cadNome').value, 
+            cpf: document.getElementById('cadCpf').value, 
+            email: document.getElementById('cadEmail').value,
+            senha: document.getElementById('cadSenha').value, 
+            perfil: "colaborador",
+            status: "ativo",
+            dataCadastro: new Date().toLocaleString()
+        };
+        if(!novo.nome || !novo.cpf) { alert("Preencha todos os campos"); return; }
+        if(users.find(u => u.cpf === novo.cpf)) { alert("CPF já cadastrado!"); return; }
+        users.push(novo); 
+        saveAll(); 
+        alert("Cadastro realizado! Aguarde aprovação do administrador."); 
+        telaAtual = "login"; 
+        renderizarApp();
+    };
+    window.voltarLogin = function() { telaAtual = "login"; renderizarApp(); };
+
+    function renderHeaderApp() {
+        const devBadge = currentUser.perfil === 'dev' ? '<span class="dev-badge">DEV</span>' : '';
+        return `<div class="header"><div class="logo"><h1>System SST</h1></div>
+        <div><span class="user-badge">👤 ${currentUser.nome}${devBadge}</span>
+        <button class="switch-profile-btn" onclick="voltarSelecaoPerfil()">Trocar</button>
+        <button class="logout-btn" onclick="logout()">Sair</button></div></div>`;
+    }
+
+    function renderNavApp() {
+        if(currentUser.perfil === 'admin') {
+            return `<div class="nav-menu">
+                <button class="nav-btn ${screenApp === 'dashboard' ? 'active' : ''}" onclick="mudarTela('dashboard')">Dashboard</button>
+                <button class="nav-btn ${screenApp === 'setores' ? 'active' : ''}" onclick="mudarTela('setores')">Setores</button>
+                <button class="nav-btn ${screenApp === 'colaboradores' ? 'active' : ''}" onclick="mudarTela('colaboradores')">Colaboradores</button>
+                <button class="nav-btn ${screenApp === 'documentos' ? 'active' : ''}" onclick="mudarTela('documentos')">Documentos</button>
+                <button class="nav-btn ${screenApp === 'solicitacoes' ? 'active' : ''}" onclick="mudarTela('solicitacoes')">PET's</button>
+                <button class="nav-btn ${screenApp === 'riscos' ? 'active' : ''}" onclick="mudarTela('riscos')">Riscos</button>
+            </div>`;
+        } else if(currentUser.perfil === 'colaborador') {
+            return `<div class="nav-menu">
+                <button class="nav-btn ${screenApp === 'dashboard' ? 'active' : ''}" onclick="mudarTela('dashboard')">Meu Painel</button>
+                <button class="nav-btn ${screenApp === 'solicitacoes' ? 'active' : ''}" onclick="mudarTela('solicitacoes')">Solicitar PET</button>
+                <button class="nav-btn ${screenApp === 'documentos' ? 'active' : ''}" onclick="mudarTela('documentos')">Meus POPs</button>
+            </div>`;
+        }
+        return '';
+    }
+
+    function renderDevNav() {
+        return `<div class="nav-menu">
+            <button class="nav-btn ${screenApp === 'devDashboard' ? 'active' : ''}" onclick="mudarTela('devDashboard')">📊 Dashboard DEV</button>
+            <button class="nav-btn ${screenApp === 'devEmpresas' ? 'active' : ''}" onclick="mudarTela('devEmpresas')">🏢 Empresas</button>
+            <button class="nav-btn ${screenApp === 'devUsuarios' ? 'active' : ''}" onclick="mudarTela('devUsuarios')">👥 Usuários</button>
+            <button class="nav-btn ${screenApp === 'devLogs' ? 'active' : ''}" onclick="mudarTela('devLogs')">📋 Logs</button>
+        </div>`;
+    }
+
+    // ========== DASHBOARD NORMAL ==========
+    function renderDashboard() {
+        const pendenciasPET = solicitacoesPET.filter(s => s.status !== "Liberado").length;
+        return `<div class="dashboard-cards">
+            <div class="card" onclick="mudarTela('solicitacoes')"><h3>📋 PET's Pendentes</h3><div class="value">${pendenciasPET}</div></div>
+            <div class="card" onclick="mudarTela('setores')"><h3>🏭 Setores</h3><div class="value">${setores.length}</div></div>
+            <div class="card" onclick="mudarTela('colaboradores')"><h3>👥 Colaboradores</h3><div class="value">${colaboradores.length}</div></div>
+            <div class="card" onclick="mudarTela('documentos')"><h3>📄 Documentos</h3><div class="value">${documentos.length}</div></div>
+        </div>
+        <h3>📢 Feedbacks</h3>
+        ${feedbacks.map(f => `<div class="list-item" style="background:white; padding:12px; border-radius:16px; margin-bottom:8px;">${f.usuario}: ${f.mensagem} <small>${f.data}</small></div>`).join('') || '<p>Nenhum feedback</p>'}
+        <button class="btn-primary" onclick="adicionarFeedback()">+ Enviar Feedback</button>`;
+    }
+
+    window.adicionarFeedback = function() {
+        const msg = prompt("Seu feedback:");
+        if(msg) { feedbacks.push({ usuario: currentUser.nome, mensagem: msg, data: new Date().toLocaleString() }); saveAll(); renderizarApp(); showToast("Feedback enviado!"); }
+    };
+
+    function renderSetores() {
+        return `<h2>Setores</h2>${setores.map(s => `<div class="card" style="margin-bottom: 12px;"><strong>${s.nome}</strong><br>Controle: ${s.controlado}%</div>`).join('')}`;
+    }
+
+    function renderColaboradores() {
+        return `<h2>Colaboradores</h2>${colaboradores.map(c => `<div class="card" style="margin-bottom: 12px;">👤 ${c.nome} - ${c.cargo}</div>`).join('')}`;
+    }
+
+    function renderDocumentos() {
+        return `<h2>Documentos</h2>${documentos.map(d => `<div class="card">${d.tipo} - ${d.titulo}<br><small>${d.conteudo}</small></div>`).join('')}`;
+    }
+
+    function renderSolicitacoes() {
+        if(currentUser.perfil === 'admin') {
+            return `<h2>Gestão de PET</h2>${solicitacoesPET.map(s => `<div class="card">${s.titulo}<br>Status: ${s.status}</div>`).join('') || '<p>Nenhuma solicitação</p>'}
+            <button class="btn-primary" onclick="mudarTela('solicitarPETForm')">+ Nova Solicitação</button>`;
+        } else {
+            return `<h2>Minhas Solicitações</h2>${solicitacoesPET.filter(s => s.solicitanteId === currentUser.id).map(s => `<div class="card">${s.titulo}<br>Status: ${s.status}</div>`).join('') || '<p>Nenhuma solicitação</p>'}
+            <button class="btn-primary" onclick="mudarTela('solicitarPETForm')">+ Nova Solicitação</button>`;
+        }
+    }
+
+    function renderFormSolicitarPET() {
+        return `<h2>Solicitar PET</h2>
+        <div class="card">
+            <div class="form-group"><label>Descrição</label><textarea id="petDescricao" rows="3"></textarea></div>
+            <button class="btn-primary" onclick="enviarSolicitacaoPET()">Enviar</button>
+            <button class="btn-secondary" onclick="mudarTela('solicitacoes')">Cancelar</button>
+        </div>`;
+    }
+
+    window.enviarSolicitacaoPET = function() {
+        const descricao = document.getElementById('petDescricao')?.value;
+        if(!descricao) { alert("Descreva a atividade"); return; }
+        solicitacoesPET.push({
+            id: Date.now(), titulo: "PET - Solicitação", descricao,
+            solicitanteId: currentUser.id, status: "Aguardando", dataSolicitacao: new Date().toLocaleString()
+        });
+        saveAll();
+        showToast("Solicitação enviada!");
+        screenApp = "solicitacoes";
+        renderizarApp();
+    };
+
+    function renderRiscos() {
+        return `<div class="card"><h3>Mapa de Riscos</h3><p>Ruído: Protetor auricular<br>Movimentos repetitivos: Pausas</p></div>`;
+    }
+
+    // ========== DASHBOARD DEV ==========
+    function renderDevDashboard() {
+        const usersAtivos = users.filter(u => u.status !== 'inativo').length;
+        const empresasAtivas = empresas.filter(e => e.status !== 'inativo').length;
+        return `
+            <div class="stats-grid">
+                <div class="stat-card"><div class="value">${empresas.length}</div><div class="label">Empresas</div></div>
+                <div class="stat-card"><div class="value">${users.length}</div><div class="label">Usuários</div></div>
+                <div class="stat-card"><div class="value">${usersAtivos}</div><div class="label">Usuários Ativos</div></div>
+                <div class="stat-card"><div class="value">${setores.length}</div><div class="label">Setores</div></div>
+            </div>
+            <div class="card">
+                <h3>📈 Resumo do Sistema</h3>
+                <p><strong>Administradores:</strong> ${users.filter(u => u.perfil === 'admin').length}</p>
+                <p><strong>Colaboradores:</strong> ${users.filter(u => u.perfil === 'colaborador').length}</p>
+                <p><strong>Últimos acessos:</strong> ${logs.slice(0, 3).map(l => `${l.usuario} - ${l.data}`).join('<br>') || 'Nenhum'}</p>
+            </div>
+            <div class="card">
+                <h3>⚡ Ações Rápidas</h3>
+                <div class="action-buttons">
+                    <button class="btn-primary" onclick="mudarTela('devEmpresas')">➕ Nova Empresa</button>
+                    <button class="btn-primary" onclick="mudarTela('devUsuarios')">👤 Novo Usuário</button>
+                    <button class="btn-secondary" onclick="exportarDados()">📥 Exportar Dados</button>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderDevEmpresas() {
+        return `
+            <h2 style="margin-bottom: 20px;">🏢 Empresas <button class="btn-primary" onclick="abrirModalEmpresa()" style="float: right;">+ Nova</button></h2>
+            <div class="card">
+                <table class="table">
+                    <thead><tr><th>ID</th><th>Nome</th><th>CNPJ</th><th>Status</th><th>Ações</th></tr></thead>
+                    <tbody>
+                        ${empresas.map(emp => `
+                            <tr>
+                                <td>${emp.id}</td><td><strong>${emp.nome}</strong></td><td>${emp.cnpj || '-'}</td>
+                                <td><span class="status-badge ${emp.status === 'ativo' ? 'status-ativo' : 'status-inativo'}">${emp.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
+                                <td><button class="btn-secondary" onclick="editarEmpresa(${emp.id})">✏️</button> <button class="btn-danger" onclick="toggleEmpresaStatus(${emp.id})">🔘</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    function renderDevUsuarios() {
+        return `
+            <h2 style="margin-bottom: 20px;">👥 Usuários <button class="btn-primary" onclick="abrirModalUsuario()" style="float: right;">+ Novo</button></h2>
+            <div class="card">
+                <table class="table">
+                    <thead><tr><th>ID</th><th>Nome</th><th>CPF</th><th>Perfil</th><th>Status</th><th>Ações</th></tr></thead>
+                    <tbody>
+                        ${users.map(user => `
+                            <tr>
+                                <td>${user.id}</td><td><strong>${user.nome}</strong></td><td>${user.cpf}</td>
+                                <td><span class="role-badge role-${user.perfil}">${user.perfil === 'dev' ? 'DEV' : (user.perfil === 'admin' ? 'Admin' : 'Colab')}</span></td>
+                                <td><span class="status-badge ${user.status === 'ativo' ? 'status-ativo' : 'status-inativo'}">${user.status === 'ativo' ? 'Ativo' : 'Inativo'}</span></td>
+                                <td><button class="btn-secondary" onclick="editarUsuario(${user.id})">✏️</button> <button class="btn-danger" onclick="toggleUsuarioStatus(${user.id})">🔘</button> <button class="btn-primary" onclick="resetarSenha(${user.id})">🔑</button></td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    function renderDevLogs() {
+        return `
+            <h2 style="margin-bottom: 20px;">📋 Logs do Sistema</h2>
+            <div class="card">
+                <table class="table">
+                    <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th></tr></thead>
+                    <tbody>
+                        ${logs.map(log => `<tr><td>${log.data}</td><td><strong>${log.usuario}</strong></td><td>${log.acao}</td></tr>`).join('') || '<tr><td colspan="3">Nenhum log registrado</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // ========== FUNÇÕES DEV ==========
+    function abrirModalEmpresa(empresaId = null) {
+        const empresa = empresaId ? empresas.find(e => e.id === empresaId) : null;
+        const modalHtml = `
+            <div id="modal" style="position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:2000;">
+                <div class="modal-content">
+                    <h3>${empresa ? 'Editar Empresa' : 'Nova Empresa'}</h3>
+                    <div class="form-group"><label>Nome</label><input id="empNome" value="${empresa?.nome || ''}"></div>
+                    <div class="form-group"><label>CNPJ</label><input id="empCnpj" value="${empresa?.cnpj || ''}"></div>
+                    <div class="form-group"><label>Email</label><input id="empEmail" value="${empresa?.email || ''}"></div>
+                    <div class="form-group"><label>Telefone</label><input id="empTelefone" value="${empresa?.telefone || ''}"></div>
+                    <div class="button-group" style="display:flex; gap:12px; margin-top:20px;">
+                        <button class="btn-primary" onclick="salvarEmpresa(${empresa?.id || 'null'})">Salvar</button>
+                        <button class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    window.salvarEmpresa = function(id) {
+        const nome = document.getElementById('empNome').value;
+        if(!nome) { alert("Nome é obrigatório"); return; }
+        if(id) {
+            const index = empresas.findIndex(e => e.id === id);
+            if(index !== -1) empresas[index] = { ...empresas[index], nome, cnpj: document.getElementById('empCnpj').value, email: document.getElementById('empEmail').value, telefone: document.getElementById('empTelefone').value };
+        } else {
+            empresas.push({ id: Date.now(), nome, cnpj: document.getElementById('empCnpj').value, email: document.getElementById('empEmail').value, telefone: document.getElementById('empTelefone').value, status: "ativo", dataCadastro: new Date().toLocaleString() });
+        }
+        saveAll();
+        fecharModal();
+        renderizarApp();
+        showToast("Empresa salva!");
+    };
+
+    window.editarEmpresa = function(id) { abrirModalEmpresa(id); };
+    window.toggleEmpresaStatus = function(id) {
+        const empresa = empresas.find(e => e.id === id);
+        if(empresa) { empresa.status = empresa.status === 'ativo' ? 'inativo' : 'ativo'; saveAll(); renderizarApp(); showToast(`Empresa ${empresa.nome} ${empresa.status === 'ativo' ? 'ativada' : 'desativada'}`); }
+    };
+
+    function abrirModalUsuario(userId = null) {
+        const user = userId ? users.find(u => u.id === userId) : null;
+        const modalHtml = `
+            <div id="modal" style="position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; justify-content:center; align-items:center; z-index:2000;">
+                <div class="modal-content">
+                    <h3>${user ? 'Editar Usuário' : 'Novo Usuário'}</h3>
+                    <div class="form-group"><label>Nome</label><input id="userNome" value="${user?.nome || ''}"></div>
+                    <div class="form-group"><label>CPF</label><input id="userCpf" value="${user?.cpf || ''}"></div>
+                    <div class="form-group"><label>Email</label><input id="userEmail" value="${user?.email || ''}"></div>
+                    <div class="form-group"><label>Senha</label><input id="userSenha" type="password" placeholder="********"></div>
+                    <div class="form-group"><label>Perfil</label>
+                        <select id="userPerfil">
+                            <option value="colaborador" ${user?.perfil === 'colaborador' ? 'selected' : ''}>Colaborador</option>
+                            <option value="admin" ${user?.perfil === 'admin' ? 'selected' : ''}>Administrador</option>
+                            <option value="dev" ${user?.perfil === 'dev' ? 'selected' : ''}>DEV (Super Admin)</option>
+                        </select>
+                    </div>
+                    <div class="button-group" style="display:flex; gap:12px; margin-top:20px;">
+                        <button class="btn-primary" onclick="salvarUsuario(${user?.id || 'null'})">Salvar</button>
+                        <button class="btn-secondary" onclick="fecharModal()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    window.salvarUsuario = function(id) {
+        const nome = document.getElementById('userNome').value;
+        const cpf = document.getElementById('userCpf').value;
+        if(!nome || !cpf) { alert("Nome e CPF são obrigatórios"); return; }
+        if(id) {
+            const index = users.findIndex(u => u.id === id);
+            if(index !== -1) {
+                users[index].nome = nome;
+                users[index].cpf = cpf;
+                users[index].email = document.getElementById('userEmail').value;
+                users[index].perfil = document.getElementById('userPerfil').value;
+                const senha = document.getElementById('userSenha').value;
+                if(senha) users[index].senha = senha;
+            }
+        } else {
+            if(users.find(u => u.cpf === cpf)) { alert("CPF já cadastrado!"); return; }
+            users.push({ id: Date.now(), nome, cpf, email: document.getElementById('userEmail').value, senha: document.getElementById('userSenha').value || "123456", perfil: document.getElementById('userPerfil').value, status: "ativo", dataCadastro: new Date().toLocaleString() });
+        }
+        saveAll();
+        fecharModal();
+        renderizarApp();
+        showToast("Usuário salvo!");
+    };
+
+    window.editarUsuario = function(id) { abrirModalUsuario(id); };
+    window.toggleUsuarioStatus = function(id) {
+        if(id === currentUser?.id) { alert("Você não pode desativar seu próprio usuário!"); return; }
+        const user = users.find(u => u.id === id);
+        if(user) { user.status = user.status === 'ativo' ? 'inativo' : 'ativo'; saveAll(); renderizarApp(); showToast(`Usuário ${user.nome} ${user.status === 'ativo' ? 'ativado' : 'desativado'}`); }
+    };
+    window.resetarSenha = function(id) {
+        const user = users.find(u => u.id === id);
+        if(user) { const novaSenha = prompt(`Nova senha para ${user.nome}:`, "123456"); if(novaSenha) { user.senha = novaSenha; saveAll(); showToast(`Senha de ${user.nome} alterada!`); renderizarApp(); } }
+    };
+    window.exportarDados = function() {
+        const dados = { users, empresas, logs, setores, colaboradores, documentos, solicitacoesPET, feedbacks, dataExportacao: new Date().toLocaleString() };
+        const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_sst_${new Date().toISOString().slice(0,19)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("Backup exportado!");
+    };
+
+    function fecharModal() { document.getElementById('modal')?.remove(); }
+
+    initData();
+    renderizarApp();
+</script>
+</body>
+</html>
